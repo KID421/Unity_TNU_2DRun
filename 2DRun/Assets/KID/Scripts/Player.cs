@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Player : MonoBehaviour
 {
@@ -17,19 +16,30 @@ public class Player : MonoBehaviour
     public Vector3 offset;
     [Header("地板偵測長度")]
     public float length = 0.1f;
+    [Header("金幣標籤")]
+    public string tagCoin = "金幣";
+    [Header("障礙物標籤")]
+    public string tagObstacle = "障礙物";
+    [Header("死亡高度")]
+    public float deathHeight = -4;
 
     private Rigidbody2D rig;
     private Animator ani;
+    private GameManager gm;
     public bool isGrounded
     {
         get
         {
             RaycastHit2D hit = Physics2D.Raycast(transform.position + offset, transform.up, length);
-            if (hit)
-                return hit.collider.tag == tagGround;
-            else
-                return false;
+            if (hit) return hit.collider.tag == tagGround;
+            else return false;
         }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.tag == tagCoin) gm.GetCoin(collision);
+        if (collision.tag == tagObstacle) gm.GetHit(collision);
     }
 
     private void OnDrawGizmos()
@@ -42,12 +52,15 @@ public class Player : MonoBehaviour
     {
         rig = GetComponent<Rigidbody2D>();
         ani = GetComponent<Animator>();
+
+        gm = FindObjectOfType<GameManager>();
     }
 
     private void Update()
     {
         Jump();
         Move();
+        DeadByHeight();
     }
 
     private void Move()
@@ -63,5 +76,20 @@ public class Player : MonoBehaviour
             rig.AddForce(transform.up * jump);
             rig.constraints = RigidbodyConstraints2D.FreezeRotation;
         }
+    }
+
+    private void DeadByHeight()
+    {
+        if (transform.position.y < deathHeight)
+        {
+            gm.Dead();
+        }
+    }
+
+    public void Dead()
+    {
+        rig.constraints = RigidbodyConstraints2D.FreezeAll;
+        ani.SetTrigger(paraDead);
+        speed = 0;
     }
 }
