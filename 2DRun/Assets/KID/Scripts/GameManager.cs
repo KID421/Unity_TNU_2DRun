@@ -82,6 +82,14 @@ public class GameManager : MonoBehaviour
         StartCoroutine(FinalEffect());
     }
 
+    public void GameOver()
+    {
+        if (gameOver) return;
+        gameOver = true;
+        cam.speed = 0;
+        StartCoroutine(FinalEffect());
+    }
+
     private IEnumerator FinalEffect()
     {
         yield return new WaitForSeconds(1);

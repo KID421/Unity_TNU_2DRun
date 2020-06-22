@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Runtime.InteropServices;
+using UnityEngine;
 
 public class Player : MonoBehaviour
 {
@@ -22,6 +23,10 @@ public class Player : MonoBehaviour
     public string tagObstacle = "障礙物";
     [Header("死亡高度")]
     public float deathHeight = -4;
+    [Header("過關區域名稱")]
+    public string passName = "過關區域";
+
+    private bool pass;
 
     private Rigidbody2D rig;
     private Animator ani;
@@ -40,6 +45,7 @@ public class Player : MonoBehaviour
     {
         if (collision.tag == tagCoin) gm.GetCoin(collision);
         if (collision.tag == tagObstacle) gm.GetHit(collision);
+        if (collision.name == passName) Pass(collision);
     }
 
     private void OnDrawGizmos()
@@ -91,5 +97,15 @@ public class Player : MonoBehaviour
         rig.constraints = RigidbodyConstraints2D.FreezeAll;
         ani.SetTrigger(paraDead);
         speed = 0;
+    }
+
+    private void Pass(Collider2D collision)
+    {
+        if (collision.name == passName)
+        {
+            pass = true;
+            speed = 0;
+            gm.GameOver();
+        }
     }
 }
